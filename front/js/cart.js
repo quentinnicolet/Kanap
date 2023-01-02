@@ -210,6 +210,31 @@ function verifyForm() {
       }
 }
 
+function createOrder(event) {
+      event.preventDefault();
+      let formData = new FormData(event.target);
+      let order = {};
+      for (let [name, value] of formData) {
+            order[name] = value;
+      }
+      fetch('http://localhost:3000/api/orders', {
+            method: 'POST',
+            headers: {
+                  'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(order)
+      })
+            .then(response => response.json())
+            .then(data => {
+                  window.location.href = `/confirmation.html?orderId=${data.order._id}`;
+            })
+            .catch(error => console.error(error));
+}
+
+let placeOrderButton = document.getElementById('placeOrderButton');
+
+placeOrderButton.addEventListener('click', createOrder);
+
 function main() {
       for (productInCart of cart) {
             retriveInfo(productInCart)
