@@ -20,7 +20,7 @@ function displayProduct(product){
 
       h1.innerHTML = product.name;
       p.innerHTML = product.description;
-      span.innerHTML = `${product.price/100}`;
+      span.innerHTML = product.price;
 
       img.src = product.imageUrl;
       img.alt = product.altTxt;

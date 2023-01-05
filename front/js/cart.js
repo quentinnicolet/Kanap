@@ -1,95 +1,99 @@
 let cart = JSON.parse(localStorage.getItem("cart"));
 
-function retriveInfo(product) {
-      fetch(`http://localhost:3000/api/products/${product.id}`)
-            .then((response) => response.json())
-            .then((data) => {
-                  data.color = product.color;
-                  data.quantity = product.quantity;
-                  displayCart(data);
-                  updateTotalQuantity();
-                  updateTotalPrice();
-            });
+async function retrieveInfo(cart) {
+      let result = []
+      for (let product of cart) {
+            await fetch(`http://localhost:3000/api/products/${product.id}`)
+                  .then((response) => response.json())
+                  .then((data) => {
+                        data.color = product.color;
+                        data.quantity = product.quantity;
+                        result.push(data)
+                  });
+      }
+      return result
 }
 
-function displayCart(product) {
-      let cartItems = document.getElementById("cart__items");
-      let article = document.createElement("article");
-      article.className = "cart__item";
-      article.setAttribute("data-id", product._id);
-      article.setAttribute("data-color", product.color);
+function displayCart(totalInfo) {
+      for (let product of totalInfo) {
+            let cartItems = document.getElementById("cart__items");
+            let article = document.createElement("article");
+            article.className = "cart__item";
+            article.setAttribute("data-id", product._id);
+            article.setAttribute("data-color", product.color);
 
-      let imgDiv = document.createElement("div");
-      imgDiv.className = "cart__item__img";
+            let imgDiv = document.createElement("div");
+            imgDiv.className = "cart__item__img";
 
-      let img = document.createElement("img");
-      img.src = product.imageUrl;
-      img.alt = product.altTxt;
+            let img = document.createElement("img");
+            img.src = product.imageUrl;
+            img.alt = product.altTxt;
 
-      let contentDiv = document.createElement("div");
-      contentDiv.className = "cart__item__content";
+            let contentDiv = document.createElement("div");
+            contentDiv.className = "cart__item__content";
 
-      let descriptionDiv = document.createElement("div");
-      descriptionDiv.className = "cart__item__content__description";
+            let descriptionDiv = document.createElement("div");
+            descriptionDiv.className = "cart__item__content__description";
 
-      let h2 = document.createElement("h2");
-      h2.innerHTML = product.name;
+            let h2 = document.createElement("h2");
+            h2.innerHTML = product.name;
 
-      let p1 = document.createElement("p");
-      p1.innerHTML = product.color;
+            let p1 = document.createElement("p");
+            p1.innerHTML = product.color;
 
-      let p2 = document.createElement("p");
-      p2.innerHTML = `${product.price / 100} €`;
+            let p2 = document.createElement("p");
+            p2.innerHTML = `${product.price} €`;
 
-      let settingsDiv = document.createElement("div");
-      settingsDiv.className = "cart__item__content__settings";
+            let settingsDiv = document.createElement("div");
+            settingsDiv.className = "cart__item__content__settings";
 
-      let quantityDiv = document.createElement("div");
-      quantityDiv.className = "cart__item__content__settings__quantity";
+            let quantityDiv = document.createElement("div");
+            quantityDiv.className = "cart__item__content__settings__quantity";
 
-      let quantityP = document.createElement("p");
-      quantityP.innerHTML = "Qté : ";
+            let quantityP = document.createElement("p");
+            quantityP.innerHTML = "Qté : ";
 
-      let quantityInput = document.createElement("input");
-      quantityInput.type = "number";
-      quantityInput.className = "itemQuantity";
-      quantityInput.name = "itemQuantity";
-      quantityInput.min = "1";
-      quantityInput.max = "100";
-      quantityInput.value = product.quantity;
-      // quantityInput.addEventListener("input", updateTotalQuantity);
-      // quantityInput.addEventListener("input", updateTotalPrice);
+            let quantityInput = document.createElement("input");
+            quantityInput.type = "number";
+            quantityInput.className = "itemQuantity";
+            quantityInput.name = "itemQuantity";
+            quantityInput.min = "1";
+            quantityInput.max = "100";
+            quantityInput.value = product.quantity;
 
+            let deleteDiv = document.createElement("div");
+            deleteDiv.className = "cart__item__content__settings__delete";
 
-      let deleteDiv = document.createElement("div");
-      deleteDiv.className = "cart__item__content__settings__delete";
+            let deleteP = document.createElement("p");
+            deleteP.className = "deleteItem";
+            deleteP.innerHTML = "Supprimer";
 
-      let deleteP = document.createElement("p");
-      deleteP.className = "deleteItem";
-      deleteP.innerHTML = "Supprimer";
+            deleteP.addEventListener("click", deleteProduct);
 
-      deleteP.addEventListener("click", deleteProduct);
+            quantityInput.addEventListener("input", updateTotals);
 
-      quantityInput.addEventListener("input", updateQuantity);
+            let placeOrderButton = document.getElementById('order');
 
-      cartItems.appendChild(article);
-      article.appendChild(imgDiv);
-      imgDiv.appendChild(img);
-      article.appendChild(contentDiv);
-      contentDiv.appendChild(descriptionDiv);
-      descriptionDiv.appendChild(h2);
-      descriptionDiv.appendChild(p1);
-      descriptionDiv.appendChild(p2);
-      contentDiv.appendChild(settingsDiv);
-      settingsDiv.appendChild(quantityDiv);
-      quantityDiv.appendChild(quantityP);
-      quantityDiv.appendChild(quantityInput);
-      settingsDiv.appendChild(deleteDiv);
-      deleteDiv.appendChild(deleteP);
+            placeOrderButton.addEventListener('click', createOrder);
+
+            cartItems.appendChild(article);
+            article.appendChild(imgDiv);
+            imgDiv.appendChild(img);
+            article.appendChild(contentDiv);
+            contentDiv.appendChild(descriptionDiv);
+            descriptionDiv.appendChild(h2);
+            descriptionDiv.appendChild(p1);
+            descriptionDiv.appendChild(p2);
+            contentDiv.appendChild(settingsDiv);
+            settingsDiv.appendChild(quantityDiv);
+            quantityDiv.appendChild(quantityP);
+            quantityDiv.appendChild(quantityInput);
+            settingsDiv.appendChild(deleteDiv);
+            deleteDiv.appendChild(deleteP);
+      }
 }
 
 function updateQuantity(event) {
-      console.log(event.target.parentNode.parentNode.parentNode.parentNode)
       let productId = event.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-id");
       let productColor = event.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-color");
       let newQuantity = event.target.value;
@@ -105,33 +109,42 @@ function updateQuantity(event) {
             }
       }
 }
-function updateTotalQuantity() {
+function updateTotalQuantity(totalInfo) {
       let totalQuantity = 0;
-      let itemQuantities = document.getElementsByClassName("itemQuantity");
-
-      for (let i = 0; i < itemQuantities.length; i++) {
-            totalQuantity += parseInt(itemQuantities[i].value);
+      for (let product of totalInfo) {
+            totalQuantity += product.quantity;
       }
-
       document.getElementById("totalQuantity").innerText = totalQuantity;
 }
 
-async function updateTotalPrice() {
+function updateTotalPrice(totalInfo) {
       let totalPrice = 0;
-      for (let product of cart) {
-            try {
-                  let response = await fetch(`http://localhost:3000/api/products/${product.id}`);
-                  let data = await response.json();
-
-                  let productPrice = data.price;
-                  let productTotal = productPrice * product.quantity;
-
-                  totalPrice += productTotal;
-            } catch (error) {
-                  console.error(error);
-            }
+      for (let product of totalInfo) {
+            let productTotal = product.price * product.quantity;
+            totalPrice += productTotal;
       }
       document.getElementById("totalPrice").innerHTML = totalPrice;
+}
+
+async function updateTotals(totalInfo) {
+      console.log(totalInfo)
+      if (typeof totalInfo !== 'array') {
+            let productId = totalInfo.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-id");
+            let productColor = totalInfo.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-color");
+            let productQty = totalInfo.target.valueAsNumber;
+            for (let i = 0; i < cart.length; i++) {
+                  if (cart[i].id === productId && cart[i].color === productColor) {
+                        cart[i].quantity = productQty
+                        break;
+                  }
+            }
+            localStorage.setItem("cart", JSON.stringify(cart));
+            let newCart = JSON.parse(localStorage.getItem("cart"))
+            totalInfo = await retrieveInfo(newCart)
+      }
+      console.log(totalInfo)
+      updateTotalPrice(totalInfo)
+      updateTotalQuantity(totalInfo)
 }
 
 function deleteProduct(event) {
@@ -210,35 +223,35 @@ function verifyForm() {
       }
 }
 
-function createOrder(event) {
-      event.preventDefault();
-      let formData = new FormData(event.target);
-      let order = {};
-      for (let [name, value] of formData) {
-            order[name] = value;
+async function createOrder() {
+      let cart = JSON.parse(localStorage.getItem("cart"));
+      let orderDetails = {
+            products: cart.map(product => ({
+                  id: product.id,
+                  color: product.color,
+                  quantity: product.quantity
+            }))
+      };
+
+      try {
+            const response = await fetch('http://localhost:3000/api/orders', {
+                  method: 'POST',
+                  body: JSON.stringify(orderDetails),
+                  headers: {
+                        'Content-Type': 'application/json'
+                  }
+            });
+            const data = await response.json();
+            window.location.href = `confirmation.html?orderId=${data.order._id}`;
+      } catch (error) {
+            console.error(error);
       }
-      fetch('http://localhost:3000/api/orders', {
-            method: 'POST',
-            headers: {
-                  'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(order)
-      })
-            .then(response => response.json())
-            .then(data => {
-                  window.location.href = `/confirmation.html?orderId=${data.order._id}`;
-            })
-            .catch(error => console.error(error));
 }
 
-let placeOrderButton = document.getElementById('placeOrderButton');
-
-placeOrderButton.addEventListener('click', createOrder);
-
-function main() {
-      for (productInCart of cart) {
-            retriveInfo(productInCart)
-      }
+async function main() {
+      let totalInfo = await retrieveInfo(cart)
+      displayCart(totalInfo);
+      updateTotals(totalInfo);
 }
 
 main();
