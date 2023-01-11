@@ -1,7 +1,7 @@
 let cart = JSON.parse(localStorage.getItem("cart"));
 
 async function retrieveInfo(cart) {
-      let result = []
+      let result = new Array()
       for (let product of cart) {
             await fetch(`http://localhost:3000/api/products/${product.id}`)
                   .then((response) => response.json())
@@ -74,7 +74,10 @@ function displayCart(totalInfo) {
 
             let placeOrderButton = document.getElementById('order');
 
-            placeOrderButton.addEventListener('click', createOrder);
+            placeOrderButton.addEventListener('click', (event) => {
+                  event.preventDefault()
+                  createOrder()
+            });
 
             cartItems.appendChild(article);
             article.appendChild(imgDiv);
@@ -112,7 +115,7 @@ function updateQuantity(event) {
 function updateTotalQuantity(totalInfo) {
       let totalQuantity = 0;
       for (let product of totalInfo) {
-            totalQuantity += product.quantity;
+            totalQuantity += Number(product.quantity);
       }
       document.getElementById("totalQuantity").innerText = totalQuantity;
 }
@@ -127,14 +130,13 @@ function updateTotalPrice(totalInfo) {
 }
 
 async function updateTotals(totalInfo) {
-      console.log(totalInfo)
-      if (typeof totalInfo !== 'array') {
+      if (!Array.isArray(totalInfo)) {
             let productId = totalInfo.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-id");
             let productColor = totalInfo.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-color");
             let productQty = totalInfo.target.valueAsNumber;
             for (let i = 0; i < cart.length; i++) {
                   if (cart[i].id === productId && cart[i].color === productColor) {
-                        cart[i].quantity = productQty
+                        cart[i].quantity = Number(productQty)
                         break;
                   }
             }
@@ -142,64 +144,35 @@ async function updateTotals(totalInfo) {
             let newCart = JSON.parse(localStorage.getItem("cart"))
             totalInfo = await retrieveInfo(newCart)
       }
-      console.log(totalInfo)
       updateTotalPrice(totalInfo)
       updateTotalQuantity(totalInfo)
 }
 
-function deleteProduct(event) {
-      let productId = event.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-id");
-      let productColor = event.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-color");
-
-      event.target.parentNode.parentNode.parentNode.parentNode.remove();
-
+async function deleteProduct(event) {
+      let productId = event.target.closest('article').getAttribute('data-id');
+      let productColor = event.target.closest('article').getAttribute('data-color');
+      let index = -1;
       for (let i = 0; i < cart.length; i++) {
             if (cart[i].id === productId && cart[i].color === productColor) {
-                  cart.splice(i, 1);
+                  index = i;
+
                   break;
             }
+
+      }
+
+      if (index > -1) {
+            cart.splice(index, 1);
       }
 
       localStorage.setItem("cart", JSON.stringify(cart));
 
-      updateTotalQuantity();
-      updateTotalPrice();
+      event.target.closest('article').remove();
+
+      let totalInfo = await retrieveInfo(cart)
+
+      updateTotals(totalInfo);
 }
-
-
-
-let fields = [
-      {
-            id: "firstName",
-            value: document.getElementById("firstName").value,
-            regex: /[a-zA-Z]/,
-            errorMessage: "Veuillez entrer un prénom valide."
-      },
-      {
-            id: "lastName",
-            value: document.getElementById("lastName").value,
-            regex: /[a-zA-Z]/,
-            errorMessage: "Veuillez entrer un nom valide."
-      },
-      {
-            id: "address",
-            value: document.getElementById("address").value,
-            regex: /^[a-zA-Z0-9\s,'-]*$/,
-            errorMessage: "Veuillez entrer une adresse valide."
-      },
-      {
-            id: "city",
-            value: document.getElementById("city").value,
-            regex: /[a-zA-Z]/,
-            errorMessage: "Veuillez entrer une ville valide."
-      },
-      {
-            id: "email",
-            value: document.getElementById("email").value,
-            regex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-            errorMessage: "Veuillez entrer un email valide."
-      }
-];
 
 function verifyField(field) {
       if (field.value === "") {
@@ -209,21 +182,58 @@ function verifyField(field) {
             document.getElementById(`${field.id}ErrorMsg`).innerHTML = field.errorMessage;
             return false;
       } else {
-            document.getElementById(`${field.id}ErrorMsg`).innerHTML = "";
+            document.getElementById(`${field.id}ErrorMsg`).innerHTML = "";cart__order__formcart__order__form
             return true;
       }
 }
 
 function verifyForm() {
-      let formValid = true;
+      let fields = [
+            {
+                  id: "firstName",
+                  value: document.getElementById("firstName").value,
+                  regex: /^([^0-9]*)$/,
+                  errorMessage: "Veuillez entrer un prénom valide."
+            },
+            {
+                  id: "lastName",
+                  value: document.getElementById("lastName").value,
+                  regex: /[a-zA-Z]/,
+                  errorMessage: "Veuillez entrer un nom valide."
+            },
+            {
+                  id: "address",
+                  value: document.getElementById("address").value,
+                  regex: /^[a-zA-Z0-9\s,'-]*$/,
+                  errorMessage: "Veuillez entrer une adresse valide."
+            },
+            {
+                  id: "city",
+                  value: document.getElementById("city").value,
+                  regex: /[a-zA-Z]/,
+                  errorMessage: "Veuillez entrer une ville valide."
+            },
+            {
+                  id: "email",
+                  value: document.getElementById("email").value,
+                  regex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                  errorMessage: "Veuillez entrer un email valide."
+            }
+      ];
       for (let field of fields) {
             if (!verifyField(field)) {
-                  formValid = false;
+                  return false;
             }
       }
+      return true
 }
 
 async function createOrder() {
+      // verify if user info are well filled
+      if (verifyForm() === false) {
+            return
+      }
+
       let cart = JSON.parse(localStorage.getItem("cart"));
       let orderDetails = {
             products: cart.map(product => ({
