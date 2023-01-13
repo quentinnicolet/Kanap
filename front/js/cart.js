@@ -75,8 +75,8 @@ function displayCart(totalInfo) {
             let placeOrderButton = document.getElementById('order');
 
             placeOrderButton.addEventListener('click', (event) => {
-                  event.preventDefault()
-                  createOrder()
+                  event.preventDefault();
+                  createOrder();
             });
 
             cartItems.appendChild(article);
@@ -103,7 +103,6 @@ function updateQuantity(event) {
 
       for (let i = 0; i < cart.length; i++) {
             if (cart[i].id === productId && cart[i].color === productColor) {
-                  console.log('Product has been found')
                   cart[i].quantity = newQuantity;
                   localStorage.setItem("cart", JSON.stringify(cart));
                   updateTotalQuantity();
@@ -182,7 +181,7 @@ function verifyField(field) {
             document.getElementById(`${field.id}ErrorMsg`).innerHTML = field.errorMessage;
             return false;
       } else {
-            document.getElementById(`${field.id}ErrorMsg`).innerHTML = "";cart__order__formcart__order__form
+            document.getElementById(`${field.id}ErrorMsg`).innerHTML = "";
             return true;
       }
 }
@@ -229,22 +228,25 @@ function verifyForm() {
 }
 
 async function createOrder() {
-      // verify if user info are well filled
       if (verifyForm() === false) {
             return
       }
 
+      let contact = {
+            firstName: document.getElementById("firstName").value,
+            lastName: document.getElementById("lastName").value,
+            address: document.getElementById("address").value,
+            city: document.getElementById("city").value,
+            email: document.getElementById("email").value,
+      }
+
       let cart = JSON.parse(localStorage.getItem("cart"));
       let orderDetails = {
-            products: cart.map(product => ({
-                  id: product.id,
-                  color: product.color,
-                  quantity: product.quantity
-            }))
+            products: cart.map(product => (product.id)), contact
       };
 
       try {
-            const response = await fetch('http://localhost:3000/api/orders', {
+            const response = await fetch('http://localhost:3000/api/products/order', {
                   method: 'POST',
                   body: JSON.stringify(orderDetails),
                   headers: {
@@ -252,7 +254,7 @@ async function createOrder() {
                   }
             });
             const data = await response.json();
-            window.location.href = `confirmation.html?orderId=${data.order._id}`;
+            window.location.href = `confirmation.html?orderId=${data.orderId}`;
       } catch (error) {
             console.error(error);
       }
