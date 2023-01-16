@@ -1,5 +1,6 @@
+// The first line of code retrieves the cart from local storage and assigns it to the variable "cart".
 let cart = JSON.parse(localStorage.getItem("cart"));
-
+// The "retrieveInfo" function is an asynchronous function that takes in an argument of "cart" and creates an empty array called "result". It then loops through the items in the cart and uses the fetch API to retrieve product information from a local server at the specified URL, passing in the product's id. It then converts the response into a JSON format and pushes the data to the "result" array, along with the color and quantity of the product from the cart. It returns the "result" array when all the products have been processed.
 async function retrieveInfo(cart) {
       let result = new Array()
       for (let product of cart) {
@@ -13,7 +14,7 @@ async function retrieveInfo(cart) {
       }
       return result
 }
-
+// The "displayCart" function takes in an argument of "totalInfo", which is the array returned by the "retrieveInfo" function. It then uses JavaScript DOM manipulation to create and append HTML elements to the page to display the product information, color and quantity from the cart, as well as an image, and a form to enter quantity and delete items from the cart. It also adds an event listener to the place order button, which calls the "createOrder" function when clicked.
 function displayCart(totalInfo) {
       for (let product of totalInfo) {
             let cartItems = document.getElementById("cart__items");
@@ -95,7 +96,7 @@ function displayCart(totalInfo) {
             deleteDiv.appendChild(deleteP);
       }
 }
-
+// The "updateQuantity" function is triggered by an event listener on the quantity input field, and retrieves the product id, color, and new quantity from the event target. It then loops through the cart and updates the quantity of the matching product in the cart.
 function updateQuantity(event) {
       let productId = event.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-id");
       let productColor = event.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-color");
@@ -111,6 +112,7 @@ function updateQuantity(event) {
             }
       }
 }
+// The "updateTotalQuantity" function updates the total quantity of items in the cart by looping through the cart and adding up the quantity of each item.
 function updateTotalQuantity(totalInfo) {
       let totalQuantity = 0;
       for (let product of totalInfo) {
@@ -118,7 +120,7 @@ function updateTotalQuantity(totalInfo) {
       }
       document.getElementById("totalQuantity").innerText = totalQuantity;
 }
-
+// The "updateTotalPrice" function updates the total price of the items in the cart by looping through the cart and adding up the price of each item multiplied by its quantity.
 function updateTotalPrice(totalInfo) {
       let totalPrice = 0;
       for (let product of totalInfo) {
@@ -127,7 +129,7 @@ function updateTotalPrice(totalInfo) {
       }
       document.getElementById("totalPrice").innerHTML = totalPrice;
 }
-
+// The "updateTotals" function updates the total price and quantity of the items in the cart by calling the "updateTotalQuantity" and "updateTotalPrice" functions.
 async function updateTotals(totalInfo) {
       if (!Array.isArray(totalInfo)) {
             let productId = totalInfo.target.parentNode.parentNode.parentNode.parentNode.getAttribute("data-id");
@@ -146,7 +148,7 @@ async function updateTotals(totalInfo) {
       updateTotalPrice(totalInfo)
       updateTotalQuantity(totalInfo)
 }
-
+// The "deleteProduct" function is triggered by an event listener on the delete button, and retrieves the product id, color and deletes the product from the cart. It then calls the "updateTotals" function to update the total amount and number of items in the cart.
 async function deleteProduct(event) {
       let productId = event.target.closest('article').getAttribute('data-id');
       let productColor = event.target.closest('article').getAttribute('data-color');
@@ -172,7 +174,7 @@ async function deleteProduct(event) {
 
       updateTotals(totalInfo);
 }
-
+// The "verifyField" function is used to validate a form field by checking if it is empty or not.
 function verifyField(field) {
       if (field.value === "") {
             document.getElementById(`${field.id}ErrorMsg`).innerHTML = `Veuillez entrer votre ${field.id}.`;
@@ -185,7 +187,7 @@ function verifyField(field) {
             return true;
       }
 }
-
+// The "verifyForm" function is used to validate the form by checking if all the fields are filled in correctly by calling the "verifyField" function for each field.
 function verifyForm() {
       let fields = [
             {
@@ -226,7 +228,7 @@ function verifyForm() {
       }
       return true
 }
-
+// The "createOrder" function retrieves the customer information from the form and sends it to the server to create an order.
 async function createOrder() {
       if (verifyForm() === false) {
             return
@@ -259,7 +261,7 @@ async function createOrder() {
             console.error(error);
       }
 }
-
+// The "main" function calls the "updateTotals" and "verifyForm" functions to update the totals and validate the form on page load.
 async function main() {
       let totalInfo = await retrieveInfo(cart)
       displayCart(totalInfo);
