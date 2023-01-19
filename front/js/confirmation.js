@@ -4,4 +4,4 @@ let orderId = urlParams.get('orderId');
 
 document.getElementById('orderId').innerHTML = orderId;
 
-//Vider le local storage
+//Insère le code existant dans une fonction "main". Et rajoute une fonction asynchrone "clearLoacalStorage", qui va vider le local-storage. Appele la fonction "main", puis la fonction "claerLocalStorage"

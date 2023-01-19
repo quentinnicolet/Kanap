@@ -47,12 +47,12 @@ function addToCart() {
             color: choiceColor,
             quantity: quantity
       };
-// rajouter un if color égal à vide et un if quuantity compris entre 1 et 100
+// rajouter deux if, si la color est égal à vide =False. Et seulement si quantity est compris entre 1 et 100 =True, sinon =False
       let isFound = false;
       cart.forEach(item => {
             if (item.id == id && item.color == choiceColor) {
                   item.quantity = Number(item.quantity) + Number(quantity);
-                  //si elle est comprise entre 1 et 100 isFound = true
+                  //Si elle est comprise entre 1 et 100 isFound = true
                   isFound = true;
             }
       });
