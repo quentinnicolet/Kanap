@@ -41,23 +41,33 @@ function addToCart() {
       let choiceColor = colors.value;
       let quantity = document.querySelector('#quantity').value;
       let cart = JSON.parse(localStorage.getItem("cart"));
+      if (!choiceColor) {
+            alert("Veuillez choisir une couleur !")
+            return
+      }
       if (!cart) cart = [];
       let cartItem = {
             id: id,
             color: choiceColor,
             quantity: quantity
       };
-// rajouter deux if, si la color est égal à vide =False. Et seulement si quantity est compris entre 1 et 100 =True, sinon =False
       let isFound = false;
       cart.forEach(item => {
             if (item.id == id && item.color == choiceColor) {
-                  item.quantity = Number(item.quantity) + Number(quantity);
-                  //Si elle est comprise entre 1 et 100 isFound = true
+                  let newQuantity = Number(item.quantity) + Number(quantity);
+                  if (newQuantity >= 1 && newQuantity <= 100) {
+                        item.quantity = Number(item.quantity) + Number(quantity);
+                  }
                   isFound = true;
             }
       });
       if (!isFound) {
-            cart.push(cartItem);
+            if (quantity >= 1 && quantity <= 100) {
+                  cart.push(cartItem);
+            } else {
+                  alert("Veuillez choisir une quantité comprise entre 1 et 100 !")
+                  return;
+            }
       }
       localStorage.setItem("cart", JSON.stringify(cart));
 }

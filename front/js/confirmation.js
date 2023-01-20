@@ -3,5 +3,4 @@ let urlParams = new URLSearchParams(window.location.search);
 let orderId = urlParams.get('orderId');
 
 document.getElementById('orderId').innerHTML = orderId;
-
-//Insère le code existant dans une fonction "main". Et rajoute une fonction asynchrone "clearLoacalStorage", qui va vider le local-storage. Appele la fonction "main", puis la fonction "claerLocalStorage"
+localStorage.clear()
