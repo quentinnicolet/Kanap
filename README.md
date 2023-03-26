@@ -1,4 +1,5 @@
-#Kanap
+# Kanap
+
 Kanap is a highly useful tool for web developers who are working on Project 5 of the Web Developer path. It serves as both the front-end and back-end server, which means it handles both the client-side and server-side of the application. This makes it an important tool for building web applications that require both front-end and back-end functionality.
 
 To use the back-end functionality of Kanap, you must first ensure that you have the necessary prerequisites installed on your machine. Specifically, you will need to have Node.js and npm (Node Package Manager) installed locally on your machine. Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine, while npm is a package manager that allows you to install and manage packages and dependencies.
